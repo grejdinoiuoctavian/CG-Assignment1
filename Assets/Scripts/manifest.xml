@@ -5,7 +5,7 @@
         <id>0</id>
         <name>Background 1</name>
         <img>
-            <url></url>
+            <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Thumbnails/bg1.png</url>
         </img>
         <price>
             <value>200</value>
@@ -16,7 +16,7 @@
         <id>1</id>
         <name>Background 2</name>
         <img>
-            <url></url>
+            <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Thumbnails/bg2.png</url>
         </img>
         <price>
             <value>200</value>
@@ -27,7 +27,7 @@
         <id>2</id>
         <name>Emoji skin pack</name>
         <img>
-            <url></url>
+            <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Thumbnails/Emoji_pack.png</url>
         </img>
         <price>
             <value>500</value>
@@ -38,7 +38,7 @@
         <id>3</id>
         <name>Special effects pack</name>
         <img>
-            <url></url>
+            <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Thumbnails/fire_sfx.png</url>
         </img>
         <price>
             <value>800</value>
