@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<assets>
+    <asset>
+        <id>0</id>
+        <name>Background 1</name>
+        <img>
+            <url></url>
+        </img>
+        <price>
+            <value>200</value>
+            <currency>Emoji Coins</currency>
+        </price>
+    </asset>
+    <asset>
+        <id>1</id>
+        <name>Background 2</name>
+        <img>
+            <url></url>
+        </img>
+        <price>
+            <value>200</value>
+            <currency>Emoji Coins</currency>
+        </price>
+    </asset>
+    <asset>
+        <id>2</id>
+        <name>Emoji skin pack</name>
+        <img>
+            <url></url>
+        </img>
+        <price>
+            <value>500</value>
+            <currency>Emoji Coins</currency>
+        </price>
+    </asset>
+    <asset>
+        <id>3</id>
+        <name>Special effects pack</name>
+        <img>
+            <url></url>
+        </img>
+        <price>
+            <value>800</value>
+            <currency>Emoji Coins</currency>
+        </price>
+    </asset>
+</assets>
