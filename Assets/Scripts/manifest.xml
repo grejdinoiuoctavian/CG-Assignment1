@@ -9,7 +9,6 @@
         </img>
         <price>
             <value>200</value>
-            <currency>Emoji Coins</currency>
         </price>
     </asset>
     <asset>
@@ -20,7 +19,6 @@
         </img>
         <price>
             <value>200</value>
-            <currency>Emoji Coins</currency>
         </price>
     </asset>
     <asset>
@@ -31,7 +29,6 @@
         </img>
         <price>
             <value>500</value>
-            <currency>Emoji Coins</currency>
         </price>
     </asset>
     <asset>
@@ -42,7 +39,6 @@
         </img>
         <price>
             <value>800</value>
-            <currency>Emoji Coins</currency>
         </price>
     </asset>
 </assets>

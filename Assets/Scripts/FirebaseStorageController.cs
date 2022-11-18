@@ -59,7 +59,7 @@ public class FirebaseStorageController : MonoBehaviour
         StorageReference storageRef =  _firebaseInstance.GetReferenceFromUrl(url);
         
         // Download in memory with a maximum allowed size of 1MB (1 * 1024 * 1024 bytes)
-        const long maxAllowedSize = 1 * 1024 * 1024;
+        const long maxAllowedSize = 1 * 1024 * 1024 * 4;
         storageRef.GetBytesAsync(maxAllowedSize).ContinueWithOnMainThread(task => {
             if (task.IsFaulted || task.IsCanceled) {
                 Debug.LogException(task.Exception);
@@ -93,13 +93,7 @@ public class FirebaseStorageController : MonoBehaviour
             string thumbnailUrl = xElement.Element("img")?.Element("url")?.Value;
             string priceStr = xElement.Element("price")?.Element("value")?.Value;
             float price = (priceStr != null) ? float.Parse(priceStr) : 0.0f;
-            string currencyStr = xElement.Element("price")?.Element("currency")?.Value;
-            AssetData.CURRENCY currency = (currencyStr != null)
-                ? ((currencyStr == "EmojiCoins") ? AssetData.CURRENCY.EmojiCoins : AssetData.CURRENCY.Default)
-                : AssetData.CURRENCY.Default;
-            string discountStr = xElement.Element("sale")?.Element("discount")?.Value;
-            float discount = (discountStr != null) ? float.Parse(discountStr) : 0.0f;
-            AssetData newAsset = new AssetData(id, name, thumbnailUrl, price, currency);
+            AssetData newAsset = new AssetData(id, name, thumbnailUrl, price);
             DownloadedAssetData.Add(newAsset);
             DownloadFileAsync(newAsset.ThumbnailUrl, DownloadType.Thumbnail, newAsset);
         }
@@ -116,10 +110,9 @@ public class FirebaseStorageController : MonoBehaviour
                 Quaternion.identity,_thumbnailContainer.transform);
         thumbnailPrefab.name = "Thumbnail_" + instantiatedPrefabs.Count;
         //Load the image to that prefab
-        thumbnailPrefab.transform.GetChild(0).GetComponent<RawImage>().texture = imageTex;
-        thumbnailPrefab.transform.GetChild(1).GetComponent<TMP_Text>().text = assetRef.Name;
-        thumbnailPrefab.transform.GetChild(2).GetComponent<TMP_Text>().text = assetRef.Price + " " 
-            + assetRef.Currency.ToString();
+        thumbnailPrefab.transform.GetChild(2).GetComponent<RawImage>().texture = imageTex;
+        thumbnailPrefab.transform.GetChild(3).GetComponent<TMP_Text>().text = assetRef.Name;
+        thumbnailPrefab.transform.GetChild(4).GetComponent<TMP_Text>().text = assetRef.Price + " Emoji Coins";
 
         instantiatedPrefabs.Add(thumbnailPrefab);
         yield return null;
