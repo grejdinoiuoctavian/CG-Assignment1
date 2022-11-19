@@ -49,7 +49,6 @@ public class FirebaseStorageController : MonoBehaviour
     {
         instantiatedPrefabs = new List<GameObject>();
         _thumbnailContainer = GameObject.Find("Thumbnail_Container");
-        //First download manifest.txt
         DownloadFileAsync("gs://emoji-junkie-dlc-store-fb6f2.appspot.com/manifest.xml",DownloadType.Manifest);
         //Get the urls inside the manifest file
         //Download each url and display to the user
@@ -58,8 +57,8 @@ public class FirebaseStorageController : MonoBehaviour
     public void DownloadFileAsync(string url, DownloadType filetype, [Optional] AssetData assetRef){
         StorageReference storageRef =  _firebaseInstance.GetReferenceFromUrl(url);
         
-        // Download in memory with a maximum allowed size of 1MB (1 * 1024 * 1024 bytes)
-        const long maxAllowedSize = 1 * 1024 * 1024 * 4;
+        // Download in memory with a maximum allowed size of 32MB (32 * 1024 * 1024 bytes)
+        const long maxAllowedSize = 32 * 1024 * 1024;
         storageRef.GetBytesAsync(maxAllowedSize).ContinueWithOnMainThread(task => {
             if (task.IsFaulted || task.IsCanceled) {
                 Debug.LogException(task.Exception);
