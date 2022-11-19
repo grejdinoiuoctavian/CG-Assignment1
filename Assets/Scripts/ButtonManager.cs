@@ -60,6 +60,7 @@ public class ButtonManager : MonoBehaviour
     private void StartStore()
     {
         SceneManager.LoadScene("Store_Scene");
+        //FirebaseStorageController.Instance.prepStore();
     }
     
     private void StartGame()

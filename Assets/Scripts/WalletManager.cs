@@ -18,20 +18,19 @@ public class WalletManager : MonoBehaviour
         //Singleton Pattern
         if (Instance != this && Instance != null)
         {
-            Destroy(this);
+            Destroy(gameObject);
         }
         else
         {
             Instance = this;
         }
-        DontDestroyOnLoad(this); //GameManager
+        DontDestroyOnLoad(this);
     }
     
     // Start is called before the first frame update
     void Start()
     {
-        wallet = GameObject.Find("Wallet");
-        updateWallet();
+        
     }
 
     // Update is called once per frame
@@ -42,6 +41,7 @@ public class WalletManager : MonoBehaviour
 
     public void updateWallet()
     {
+        wallet = GameObject.Find("Wallet");
         wallet.GetComponent<TMP_Text>().text = "Emoji Coins: " + emojicoins;
     }
 }

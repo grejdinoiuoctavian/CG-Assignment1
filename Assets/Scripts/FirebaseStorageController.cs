@@ -11,6 +11,7 @@ using Firebase.Storage;
 using Firebase.Extensions;
 using JetBrains.Annotations;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class FirebaseStorageController : MonoBehaviour
 {
@@ -36,7 +37,7 @@ public class FirebaseStorageController : MonoBehaviour
         //Singleton Pattern
         if (Instance != this && Instance != null)
         {
-            Destroy(this);
+            Destroy(gameObject);
         }
         else
         {
@@ -46,16 +47,34 @@ public class FirebaseStorageController : MonoBehaviour
         _firebaseInstance = FirebaseStorage.DefaultInstance;
     }
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += prepStore;
+    }
+
     private void Start()
     {
-        instantiatedPrefabs = new List<GameObject>();
-        _thumbnailContainer = GameObject.Find("Thumbnail_Container");
-        DownloadFileAsync("gs://emoji-junkie-dlc-store-fb6f2.appspot.com/manifest.xml",DownloadType.Manifest);
-        //Get the urls inside the manifest file
-        //Download each url and display to the user
+        print("1");
+        //prepStore();
+    }
+    
+    public void prepStore(Scene scene, LoadSceneMode mode)
+    {
+        if (scene == SceneManager.GetSceneByName("Store_Scene") && mode == LoadSceneMode.Single)
+        {
+            WalletManager.Instance.updateWallet();
+            
+            instantiatedPrefabs = new List<GameObject>();
+            _thumbnailContainer = GameObject.Find("Thumbnail_Container");
+            print("2 " + _thumbnailContainer);
+            DownloadFileAsync("gs://emoji-junkie-dlc-store-fb6f2.appspot.com/manifest.xml", DownloadType.Manifest);
+            //Get the urls inside the manifest file
+            //Download each url and display to the user
+        }
     }
 
     public void DownloadFileAsync(string url, DownloadType filetype, [Optional] AssetData assetRef){
+        print("3");
         StorageReference storageRef =  _firebaseInstance.GetReferenceFromUrl(url);
         
         // Download in memory with a maximum allowed size of 32MB (32 * 1024 * 1024 bytes)
@@ -83,7 +102,7 @@ public class FirebaseStorageController : MonoBehaviour
 
     IEnumerator LoadManifest(byte[] byteArr)
     {
-        
+        print("4");
         XDocument manifest = XDocument.Parse(System.Text.Encoding.UTF8.GetString(byteArr));
         DownloadedAssetData = new List<AssetData>();
         foreach (XElement xElement in manifest.Root.Elements())
@@ -102,6 +121,7 @@ public class FirebaseStorageController : MonoBehaviour
 
     IEnumerator LoadImageContainer(byte[] byteArr, AssetData assetRef)
     {
+        print("5 " + ThumbnailPrefab);
         Texture2D imageTex = new Texture2D(1, 1);
         imageTex.LoadImage(byteArr);
         //Instantiate a new prefab
@@ -116,5 +136,10 @@ public class FirebaseStorageController : MonoBehaviour
 
         instantiatedPrefabs.Add(thumbnailPrefab);
         yield return null;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= prepStore;
     }
 }
