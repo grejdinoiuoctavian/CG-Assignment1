@@ -23,16 +23,22 @@ public class ItemButtonManager : MonoBehaviour
     
     public void handleBuy()
     {
+        int priceValue = int.Parse(price.GetComponent<TMP_Text>().text);
         //handle price
-        
-        
-        //handle button style
-        gameObject.GetComponent<Button>().interactable = false;
-        transform.GetChild(0).GetComponent<TMP_Text>().text = "OWNED";
+        if (priceValue <= WalletManager.Instance.emojicoins)
+        {
+            //change wallet balance
+            WalletManager.Instance.emojicoins -= priceValue;
+            
+            //handle button style
+            gameObject.GetComponent<Button>().interactable = false;
+            transform.GetChild(0).GetComponent<TMP_Text>().text = "OWNED";
 
-        //handle border
-        unlocked.GetComponent<RawImage>().enabled = true;
-        locked.GetComponent<RawImage>().enabled = false;
+            //handle border
+            unlocked.GetComponent<RawImage>().enabled = true;
+            locked.GetComponent<RawImage>().enabled = false;
+        }
         
+        WalletManager.Instance.updateWallet();
     }
 }
