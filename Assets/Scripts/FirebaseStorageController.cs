@@ -19,6 +19,7 @@ public class FirebaseStorageController : MonoBehaviour
     private GameObject _thumbnailContainer;
     public List<GameObject> instantiatedPrefabs;
     public List<AssetData> DownloadedAssetData;
+    
     public enum DownloadType
     {
         Manifest, Thumbnail
@@ -91,7 +92,7 @@ public class FirebaseStorageController : MonoBehaviour
             string name = xElement.Element("name")?.Value;
             string thumbnailUrl = xElement.Element("img")?.Element("url")?.Value;
             string priceStr = xElement.Element("price")?.Element("value")?.Value;
-            float price = (priceStr != null) ? float.Parse(priceStr) : 0.0f;
+            int price = (priceStr != null) ? int.Parse(priceStr) : 0;
             AssetData newAsset = new AssetData(id, name, thumbnailUrl, price);
             DownloadedAssetData.Add(newAsset);
             DownloadFileAsync(newAsset.ThumbnailUrl, DownloadType.Thumbnail, newAsset);

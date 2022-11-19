@@ -198,6 +198,7 @@ GameObject:
   - component: {fileID: 167207677165837215}
   - component: {fileID: 8303970727626229720}
   - component: {fileID: 8643736966271183227}
+  - component: {fileID: 1732316117986176233}
   m_Layer: 0
   m_Name: Buy_Button
   m_TagString: Untagged
@@ -307,7 +308,31 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8303970727626229720}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1732316117986176233}
+        m_TargetAssemblyTypeName: ItemButtonManager, Assembly-CSharp
+        m_MethodName: handleBuy
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &1732316117986176233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3836865851756083394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0714762d447a9b948b0ec10417c03439, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4352695910668846304
 GameObject:
   m_ObjectHideFlags: 0

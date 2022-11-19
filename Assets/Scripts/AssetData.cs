@@ -7,10 +7,10 @@ public class AssetData
     private string _id;
     private string _name;
     private string _thumbnailUrl;
-    private float _price;
+    private int _price;
     
     public AssetData(string id, string name, string thumbnailUrl,
-        float price)
+        int price)
     {
         ID = id;
         Name = name;
@@ -36,7 +36,7 @@ public class AssetData
         set => _thumbnailUrl = value;
     }
     
-    public float Price
+    public int Price
     {
         get => _price;
         set => _price = value;
