@@ -33,6 +33,7 @@ public class ItemButtonManager : MonoBehaviour
             //handle button style
             gameObject.GetComponent<Button>().interactable = false;
             transform.GetChild(0).GetComponent<TMP_Text>().text = "OWNED";
+            FirebaseStorageController.Instance.checkIfItemsAreAffordable();
 
             //handle border
             unlocked.GetComponent<RawImage>().enabled = true;

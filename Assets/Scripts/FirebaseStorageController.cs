@@ -11,6 +11,7 @@ using Firebase.Storage;
 using Firebase.Extensions;
 using JetBrains.Annotations;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 
 public class FirebaseStorageController : MonoBehaviour
@@ -54,7 +55,6 @@ public class FirebaseStorageController : MonoBehaviour
 
     private void Start()
     {
-        print("1");
         //prepStore();
     }
     
@@ -66,7 +66,6 @@ public class FirebaseStorageController : MonoBehaviour
             
             instantiatedPrefabs = new List<GameObject>();
             _thumbnailContainer = GameObject.Find("Thumbnail_Container");
-            print("2 " + _thumbnailContainer);
             DownloadFileAsync("gs://emoji-junkie-dlc-store-fb6f2.appspot.com/manifest.xml", DownloadType.Manifest);
             //Get the urls inside the manifest file
             //Download each url and display to the user
@@ -74,7 +73,6 @@ public class FirebaseStorageController : MonoBehaviour
     }
 
     public void DownloadFileAsync(string url, DownloadType filetype, [Optional] AssetData assetRef){
-        print("3");
         StorageReference storageRef =  _firebaseInstance.GetReferenceFromUrl(url);
         
         // Download in memory with a maximum allowed size of 32MB (32 * 1024 * 1024 bytes)
@@ -102,7 +100,6 @@ public class FirebaseStorageController : MonoBehaviour
 
     IEnumerator LoadManifest(byte[] byteArr)
     {
-        print("4");
         XDocument manifest = XDocument.Parse(System.Text.Encoding.UTF8.GetString(byteArr));
         DownloadedAssetData = new List<AssetData>();
         foreach (XElement xElement in manifest.Root.Elements())
@@ -121,7 +118,6 @@ public class FirebaseStorageController : MonoBehaviour
 
     IEnumerator LoadImageContainer(byte[] byteArr, AssetData assetRef)
     {
-        print("5 " + ThumbnailPrefab);
         Texture2D imageTex = new Texture2D(1, 1);
         imageTex.LoadImage(byteArr);
         //Instantiate a new prefab
@@ -135,7 +131,57 @@ public class FirebaseStorageController : MonoBehaviour
         thumbnailPrefab.transform.GetChild(4).GetComponent<TMP_Text>().text = assetRef.Price.ToString();
 
         instantiatedPrefabs.Add(thumbnailPrefab);
+        
+        //loaded for each item loaded into the scene (4 times)
+        checkIfItemsAreAffordable();
         yield return null;
+    }
+
+    public void checkIfItemsAreAffordable()
+    {
+        //goes through store items, makes ref to the below
+        foreach (GameObject storeItem in instantiatedPrefabs)
+        {
+            //ref price object
+            Transform priceObject = storeItem.transform.GetChild(4);
+            //ref text of button
+            TMP_Text btnTextComponent = storeItem.transform.GetChild(6).GetChild(0).GetComponent<TMP_Text>();
+            //parses to integer so it can compare to emojicoin count to see if its larger and also check if the text of the button is set to "BUY"
+            //the text of the button turns red only if the price is higher than the wallet value and if the item is locked
+            if (int.Parse(priceObject.GetComponent<TMP_Text>().text) > WalletManager.Instance.emojicoins && btnTextComponent.text == "BUY")
+            {
+                btnTextComponent.color = Color.red;
+            }
+            else
+            {
+                btnTextComponent.color = Color.black;
+            }
+        }
+    }
+
+    void downloadContent()
+    {
+        // set url to the url of the content relevant to the button clicked
+        
+        string url = "";
+        StorageReference storageRef =  _firebaseInstance.GetReferenceFromUrl(url);
+        
+        // Download in memory with a maximum allowed size of 32MB (32 * 1024 * 1024 bytes)
+        const long maxAllowedSize = 32 * 1024 * 1024;
+        storageRef.GetBytesAsync(maxAllowedSize).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled) {
+                Debug.LogException(task.Exception);
+                // Uh-oh, an error occurred!
+            }
+            else
+            {
+                // update the sprite in store
+                // make progress bar
+                  // when end do special effect
+                // etc.
+            }
+        });
     }
 
     private void OnDisable()
