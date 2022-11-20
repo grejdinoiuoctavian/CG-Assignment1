@@ -24,7 +24,7 @@ public class FirebaseStorageController : MonoBehaviour
     public List<GameObject> instantiatedPrefabs;
     public List<AssetData> DownloadedAssetData;
     
-    public 
+    //public 
     
     public enum DownloadType
     {
