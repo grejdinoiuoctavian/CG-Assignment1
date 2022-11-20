@@ -8,14 +8,16 @@ public class AssetData
     private string _name;
     private string _thumbnailUrl;
     private int _price;
+    private bool _owned;
     
     public AssetData(string id, string name, string thumbnailUrl,
-        int price)
+        int price, bool owned)
     {
         ID = id;
         Name = name;
         ThumbnailUrl = thumbnailUrl;
         Price = price;
+        Owned = owned;
     }
     
     public string ID
@@ -41,10 +43,16 @@ public class AssetData
         get => _price;
         set => _price = value;
     }
+
+    public bool Owned
+    {
+        get => _owned;
+        set => _owned = value;
+    }
     
     public override string ToString()
     {
         return ($"Asset with id:{ID} name:{Name} thumbnail url:{ThumbnailUrl} " +
-                $"price:{Price}");
+                $"price:{Price} owned:{Owned}");
     }
 }

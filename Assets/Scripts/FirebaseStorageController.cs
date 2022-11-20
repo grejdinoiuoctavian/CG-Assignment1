@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 using UnityEngine;
@@ -15,7 +14,9 @@ using Firebase.Extensions;
 using JetBrains.Annotations;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor.VersionControl;
 using UnityEngine.SceneManagement;
+using Task = System.Threading.Tasks.Task;
 
 public class FirebaseStorageController : MonoBehaviour
 {
@@ -56,25 +57,51 @@ public class FirebaseStorageController : MonoBehaviour
 
     private void OnEnable()
     {
-        SceneManager.sceneLoaded += prepStore;
+        SceneManager.sceneLoaded += prepScene;
     }
 
     private void Start()
     {
         //prepStore();
     }
-    
-    public void prepStore(Scene scene, LoadSceneMode mode)
+
+    private void prepScene(Scene scene, LoadSceneMode mode)
     {
+        //makes sure they are ONLY instantiated in the store scene
         if (scene == SceneManager.GetSceneByName("Store_Scene") && mode == LoadSceneMode.Single)
         {
-            WalletManager.Instance.updateWallet();
-            
-            instantiatedPrefabs = new List<GameObject>();
-            _thumbnailContainer = GameObject.Find("Thumbnail_Container");
+            prepStore();
+        }
+        //content is ONLY shown in the game scene
+        else if (scene == SceneManager.GetSceneByName("Game_Scene") && mode == LoadSceneMode.Single)
+        {
+            prepGame();
+        }
+    }
+
+    public void prepGame()
+    {
+        
+    }
+    
+    public void prepStore()
+    {
+        //updates the wallet and the prefabs are instantiated 
+        WalletManager.Instance.updateWallet();
+
+        instantiatedPrefabs = new List<GameObject>();
+        _thumbnailContainer = GameObject.Find("Thumbnail_Container");
+        
+        if (DownloadedAssetData == null)
+        {
             DownloadFileAsync("gs://emoji-junkie-dlc-store-fb6f2.appspot.com/manifest.xml", DownloadType.Manifest);
-            //Get the urls inside the manifest file
-            //Download each url and display to the user
+        }
+        else
+        {
+            foreach (AssetData asset in DownloadedAssetData)
+            {
+                DownloadFileAsync(asset.ThumbnailUrl, DownloadType.Thumbnail, asset);
+            }
         }
     }
 
@@ -101,13 +128,14 @@ public class FirebaseStorageController : MonoBehaviour
                 }
             }
         });
-        
     }
 
     IEnumerator LoadManifest(byte[] byteArr)
     {
         manifest = XDocument.Parse(System.Text.Encoding.UTF8.GetString(byteArr));
         DownloadedAssetData = new List<AssetData>();
+        //Get the urls inside the manifest file
+        //Download each url and display to the user
         foreach (XElement xElement in manifest.Root.Elements())
         {
             string id = xElement.Element("id")?.Value;
@@ -115,7 +143,8 @@ public class FirebaseStorageController : MonoBehaviour
             string thumbnailUrl = xElement.Element("img")?.Element("url")?.Value;
             string priceStr = xElement.Element("price")?.Element("value")?.Value;
             int price = (priceStr != null) ? int.Parse(priceStr) : 0;
-            AssetData newAsset = new AssetData(id, name, thumbnailUrl, price);
+            bool owned = false;
+            AssetData newAsset = new AssetData(id, name, thumbnailUrl, price, owned);
             DownloadedAssetData.Add(newAsset);
             DownloadFileAsync(newAsset.ThumbnailUrl, DownloadType.Thumbnail, newAsset);
         }
@@ -139,57 +168,100 @@ public class FirebaseStorageController : MonoBehaviour
         instantiatedPrefabs.Add(thumbnailPrefab);
         
         //loaded for each item loaded into the scene (4 times)
-        checkIfItemsAreAffordable();
+        checkIfItemsAreAffordable(assetRef);
+        checkIfItemsAreOwned(assetRef);
         yield return null;
     }
 
-    public void checkIfItemsAreAffordable()
+    public void checkIfItemsAreAffordable(AssetData assetRef)
     {
-        //goes through store items, makes ref to the below
-        foreach (GameObject storeItem in instantiatedPrefabs)
+        if (!assetRef.Owned)
         {
-            //ref price object
-            Transform priceObject = storeItem.transform.GetChild(4);
-            //ref text of button
-            TMP_Text btnTextComponent = storeItem.transform.GetChild(6).GetChild(0).GetComponent<TMP_Text>();
-            //parses to integer so it can compare to emojicoin count to see if its larger and also check if the text of the button is set to "BUY"
-            //the text of the button turns red only if the price is higher than the wallet value and if the item is locked
-            if (int.Parse(priceObject.GetComponent<TMP_Text>().text) > WalletManager.Instance.emojicoins && btnTextComponent.text == "BUY")
-            {
-                btnTextComponent.color = Color.red;
+            //goes through store items, makes ref to the below
+            foreach (GameObject nameLabel in GameObject.FindGameObjectsWithTag("ItemName"))
+            {   
+                // and finds the one matching the current assetRef
+                if (nameLabel.GetComponent<TMP_Text>().text == assetRef.Name)
+                {
+                    //ref parent container
+                    Transform itemContainer = nameLabel.transform.parent;
+                    //ref price object
+                    Transform priceObject = itemContainer.GetChild(4);
+                    //ref text of button
+                    TMP_Text btnTextComponent = itemContainer.GetChild(6).GetChild(0).GetComponent<TMP_Text>();
+                    //parses to integer so it can compare to emojicoin count to see if its larger and also check if the text of the button is set to "BUY"
+                    //the text of the button turns red only if the price is higher than the wallet value and if the item is locked
+                    if (int.Parse(priceObject.GetComponent<TMP_Text>().text) > WalletManager.Instance.emojicoins)
+                    {
+                        btnTextComponent.color = Color.red;
+                    }
+                    else
+                    {
+                        btnTextComponent.color = Color.black;
+                    }
+                }
             }
-            else
-            {
-                btnTextComponent.color = Color.black;
+        }
+    }
+
+    public void checkIfItemsAreOwned(AssetData assetRef)
+    {
+        // checks if items are owned and then styles appropriately
+        if (assetRef.Owned)
+        {
+            // goes through all name labels
+            foreach (GameObject nameLabel in GameObject.FindGameObjectsWithTag("ItemName"))
+            {   
+                // and finds the one matching the current assetRef
+                if (nameLabel.GetComponent<TMP_Text>().text == assetRef.Name)
+                {
+                    //ref the elements
+                    Transform itemContainer = nameLabel.transform.parent;
+                    
+                    Transform unlocked = itemContainer.GetChild(1);
+                    Transform locked = itemContainer.GetChild(0);
+                    Transform itemButton = itemContainer.GetChild(6);
+
+                    //style the container
+                    locked.GetComponent<RawImage>().enabled = false;
+                    
+                    unlocked.GetComponent<RawImage>().enabled = true;
+                    
+                    itemButton.GetComponent<Button>().interactable = false;
+                    itemButton.GetChild(0).GetComponent<TMP_Text>().text = "OWNED";
+                }
             }
+
         }
     }
 
     public void downloadContent(string itemName, Transform progressBar, Transform progressFill)
     {
         // set url to the url of the content relevant to the button clicked
-        string contentUrl = "";
+        int itemID = -1; //default -1 so it doesnt download itemID 0 by accident if a name does not match
         switch (itemName)
         {
             case "Background 1":
-                contentUrl = manifest.Root.Elements()?.ElementAt(0)?.Element("content")?.Element("url")?.Value;
+                itemID = 0;
                 break;
             
             case "Background 2":
-                contentUrl = manifest.Root.Elements()?.ElementAt(1)?.Element("content")?.Element("url")?.Value;
+                itemID = 1;
                 break;
             
             case "Emoji skin pack":
-                contentUrl = manifest.Root.Elements()?.ElementAt(2)?.Element("content")?.Element("url")?.Value;
+                itemID = 2;
                 break;
             
             case "Special effects pack":
-                contentUrl = manifest.Root.Elements()?.ElementAt(3)?.Element("content")?.Element("url")?.Value;
+                itemID = 3;
                 break;
             
             default:
                 break;
         }
+        string contentUrl = manifest.Root.Elements()?.ElementAt(itemID)?.Element("content")?.Element("url")?.Value;
+        
         print(contentUrl.Substring(54));
         StorageReference storageRef =  _firebaseInstance.GetReferenceFromUrl(contentUrl);   
         
@@ -198,25 +270,39 @@ public class FirebaseStorageController : MonoBehaviour
         //string localUrl = Application.streamingAssetsPath + "/Content/" + itemUrl;
 
         // Download to the local filesystem
-        Task task = storageRef.GetFileAsync(localUrl,
-            new StorageProgress<DownloadState>(state => {
-                // called periodically during the download
-                /*Debug.Log(String.Format(
-                    "Progress: {0} of {1} bytes transferred.",
-                    state.BytesTransferred,
-                    state.TotalByteCount
-                ));*/
-                
-                //progress bar filling up
-                new WaitForEndOfFrame();
-                progressFill.GetComponent<RectTransform>().localScale = new Vector3((float)state.BytesTransferred/(float)state.TotalByteCount, progressFill.localScale.y, progressFill.localScale.z);
+        Task task = storageRef.GetFileAsync(localUrl, new StorageProgress<DownloadState>(state => {
+            // called periodically during the download
+            /*Debug.Log(String.Format(
+                "Progress: {0} of {1} bytes transferred.",
+                state.BytesTransferred,
+                state.TotalByteCount
+            ));*/
+            
+            //progress bar filling up
+            new WaitForEndOfFrame();
+            progressFill.GetComponent<RectTransform>().localScale = new Vector3((float)state.BytesTransferred/(float)state.TotalByteCount, progressFill.localScale.y, progressFill.localScale.z);
 
-            }), CancellationToken.None);
+        }), CancellationToken.None);
 
         task.ContinueWithOnMainThread(resultTask => {
             if (!task.IsFaulted && !task.IsCanceled) {
                 Debug.Log("File downloaded." + Application.dataPath);
                 //Debug.Log("File downloaded." + Application.streamingAssetsPath);
+                
+                // find relevant asset and set to owned
+                foreach (AssetData asset in DownloadedAssetData)
+                {
+                    if (itemName == asset.Name)
+                    {
+                        //set to owned
+                        asset.Owned = true;
+                        
+                        //change wallet balance
+                        WalletManager.Instance.emojicoins -= asset.Price;
+                    }
+                    
+                    checkIfItemsAreAffordable(asset);
+                }
                 
                 // do special effect
                 Instantiate(buySpecialEffect, progressBar.position, Quaternion.identity);
@@ -235,6 +321,6 @@ public class FirebaseStorageController : MonoBehaviour
 
     private void OnDisable()
     {
-        SceneManager.sceneLoaded -= prepStore;
+        SceneManager.sceneLoaded -= prepScene;
     }
 }

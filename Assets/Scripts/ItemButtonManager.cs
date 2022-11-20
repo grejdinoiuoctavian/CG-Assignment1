@@ -14,7 +14,6 @@ public class ItemButtonManager : MonoBehaviour
     private Transform name;
     private Transform progressBar;
     private Transform progressFill;
-    
 
     void Start()
     {
@@ -31,16 +30,9 @@ public class ItemButtonManager : MonoBehaviour
     {
         int priceValue = int.Parse(price.GetComponent<TMP_Text>().text);
         //handle price
+        //price is deducted from balance after content is downloaded
         if (priceValue <= WalletManager.Instance.emojicoins)
         {
-            //change wallet balance
-            WalletManager.Instance.emojicoins -= priceValue;
-            
-            //handle button style
-            gameObject.GetComponent<Button>().interactable = false;
-            transform.GetChild(0).GetComponent<TMP_Text>().text = "OWNED";
-            FirebaseStorageController.Instance.checkIfItemsAreAffordable();
-
             //handle border
             unlocked.GetComponent<RawImage>().enabled = true;
             locked.GetComponent<RawImage>().enabled = false;
@@ -49,6 +41,10 @@ public class ItemButtonManager : MonoBehaviour
             progressBar.GetComponent<Image>().enabled = true;
             progressFill.GetComponent<Image>().enabled = true;
             FirebaseStorageController.Instance.downloadContent(name.GetComponent<TMP_Text>().text, progressBar, progressFill);
+            
+            //handle button style
+            gameObject.GetComponent<Button>().interactable = false;
+            transform.GetChild(0).GetComponent<TMP_Text>().text = "OWNED";
         }
         
         WalletManager.Instance.updateWallet();
