@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,8 +24,9 @@ public class FirebaseStorageController : MonoBehaviour
     private GameObject _thumbnailContainer;
     public List<GameObject> instantiatedPrefabs;
     public List<AssetData> DownloadedAssetData;
-    
-    //public 
+    private XDocument manifest;
+
+    public GameObject buySpecialEffect;
     
     public enum DownloadType
     {
@@ -104,7 +106,7 @@ public class FirebaseStorageController : MonoBehaviour
 
     IEnumerator LoadManifest(byte[] byteArr)
     {
-        XDocument manifest = XDocument.Parse(System.Text.Encoding.UTF8.GetString(byteArr));
+        manifest = XDocument.Parse(System.Text.Encoding.UTF8.GetString(byteArr));
         DownloadedAssetData = new List<AssetData>();
         foreach (XElement xElement in manifest.Root.Elements())
         {
@@ -166,33 +168,33 @@ public class FirebaseStorageController : MonoBehaviour
     public void downloadContent(string itemName, Transform progressBar, Transform progressFill)
     {
         // set url to the url of the content relevant to the button clicked
-        string url = "gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Content/";
-        string itemUrl = "";
+        string contentUrl = "";
         switch (itemName)
         {
             case "Background 1":
-                itemUrl = "bg1.png";
+                contentUrl = manifest.Root.Elements()?.ElementAt(0)?.Element("content")?.Element("url")?.Value;
                 break;
             
             case "Background 2":
-                itemUrl = "bg2.png";
+                contentUrl = manifest.Root.Elements()?.ElementAt(1)?.Element("content")?.Element("url")?.Value;
                 break;
             
             case "Emoji skin pack":
-                itemUrl = "emoji_pack.png";
+                contentUrl = manifest.Root.Elements()?.ElementAt(2)?.Element("content")?.Element("url")?.Value;
                 break;
             
             case "Special effects pack":
-                itemUrl = "CFXR2 Shiny Item (Loop).prefab";
+                contentUrl = manifest.Root.Elements()?.ElementAt(3)?.Element("content")?.Element("url")?.Value;
                 break;
             
             default:
                 break;
         }
-        StorageReference storageRef =  _firebaseInstance.GetReferenceFromUrl(url + itemUrl);
+        print(contentUrl.Substring(54));
+        StorageReference storageRef =  _firebaseInstance.GetReferenceFromUrl(contentUrl);   
         
         // Create local filesystem URL
-        string localUrl = Application.dataPath + "/Content/" + itemUrl;
+        string localUrl = Application.dataPath + "/Content/" + contentUrl.Substring(54);
         //string localUrl = Application.streamingAssetsPath + "/Content/" + itemUrl;
 
         // Download to the local filesystem
@@ -217,7 +219,7 @@ public class FirebaseStorageController : MonoBehaviour
                 //Debug.Log("File downloaded." + Application.streamingAssetsPath);
                 
                 // do special effect
-                
+                Instantiate(buySpecialEffect, progressBar.position, Quaternion.identity);
                 
                 // disable progress bar
                 progressBar.GetComponent<Image>().enabled = false;

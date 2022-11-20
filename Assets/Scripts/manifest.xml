@@ -7,6 +7,9 @@
         <img>
             <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Thumbnails/bg1_px.png</url>
         </img>
+        <content>
+            <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Content/bg1.png</url>
+        </content>
         <price>
             <value>200</value>
         </price>
@@ -17,6 +20,9 @@
         <img>
             <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Thumbnails/bg2_px.png</url>
         </img>
+        <content>
+            <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Content/bg2.png</url>
+        </content>
         <price>
             <value>200</value>
         </price>
@@ -27,6 +33,9 @@
         <img>
             <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Thumbnails/emoji_pack_px.png</url>
         </img>
+        <content>
+            <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Content/emoji_pack.png</url>
+        </content>
         <price>
             <value>500</value>
         </price>
@@ -37,6 +46,9 @@
         <img>
             <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Thumbnails/light_sfx_px.png</url>
         </img>
+        <content>
+            <url>gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Content/CFXR2 Shiny Item (Loop).prefab</url>
+        </content>
         <price>
             <value>800</value>
         </price>
