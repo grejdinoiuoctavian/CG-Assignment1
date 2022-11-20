@@ -159,27 +159,53 @@ public class FirebaseStorageController : MonoBehaviour
         }
     }
 
-    void downloadContent()
+    public void downloadContent(string itemName)
     {
         // set url to the url of the content relevant to the button clicked
-        
-        string url = "";
-        StorageReference storageRef =  _firebaseInstance.GetReferenceFromUrl(url);
-        
-        // Download in memory with a maximum allowed size of 32MB (32 * 1024 * 1024 bytes)
-        const long maxAllowedSize = 32 * 1024 * 1024;
-        storageRef.GetBytesAsync(maxAllowedSize).ContinueWithOnMainThread(task =>
+        string url = "gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Content/";
+        string itemUrl = "";
+        switch (itemName)
         {
-            if (task.IsFaulted || task.IsCanceled) {
-                Debug.LogException(task.Exception);
-                // Uh-oh, an error occurred!
+            case "Background 1":
+                itemUrl = "bg1.png";
+                break;
+            
+            case "Background 2":
+                itemUrl = "bg2.png";
+                break;
+            
+            case "Emoji skin pack":
+                itemUrl = "emoji_pack.png";
+                break;
+            
+            case "Special effects pack":
+                itemUrl = "CFXR3 Hit Light B (Air).prefab";
+                break;
+            
+            default:
+                break;
+        }
+        StorageReference storageRef =  _firebaseInstance.GetReferenceFromUrl(url + itemUrl);
+        
+        // Create local filesystem URL
+        string localUrl = Application.dataPath + "/Content/" + itemUrl;
+        //string localUrl = Application.streamingAssetsPath + "/Content/" + itemUrl;
+
+        // Download to the local filesystem
+        storageRef.GetFileAsync(localUrl).ContinueWithOnMainThread(task => {
+            if (!task.IsFaulted && !task.IsCanceled) {
+                Debug.Log("File downloaded." + Application.dataPath);
+                //Debug.Log("File downloaded." + Application.streamingAssetsPath);
+                
+                // update the sprite in store
+                // make progress bar
+                // when end do special effect
+                // etc.
             }
             else
             {
-                // update the sprite in store
-                // make progress bar
-                  // when end do special effect
-                // etc.
+                Debug.LogException(task.Exception);
+                // Uh-oh, an error occurred!
             }
         });
     }

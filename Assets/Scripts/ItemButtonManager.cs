@@ -11,6 +11,7 @@ public class ItemButtonManager : MonoBehaviour
     private Transform locked;
     private Transform unlocked;
     private Transform price;
+    private Transform name;
     
 
     void Start()
@@ -19,6 +20,7 @@ public class ItemButtonManager : MonoBehaviour
         locked = thumbnailPrefab.GetChild(0);
         unlocked = thumbnailPrefab.GetChild(1);
         price = thumbnailPrefab.GetChild(4);
+        name = thumbnailPrefab.GetChild(3);
     }
     
     public void handleBuy()
@@ -38,6 +40,9 @@ public class ItemButtonManager : MonoBehaviour
             //handle border
             unlocked.GetComponent<RawImage>().enabled = true;
             locked.GetComponent<RawImage>().enabled = false;
+            
+            //handle content download
+            FirebaseStorageController.Instance.downloadContent(name.GetComponent<TMP_Text>().text);
         }
         
         WalletManager.Instance.updateWallet();
