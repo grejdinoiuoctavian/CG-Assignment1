@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 using UnityEngine;
@@ -21,6 +23,8 @@ public class FirebaseStorageController : MonoBehaviour
     private GameObject _thumbnailContainer;
     public List<GameObject> instantiatedPrefabs;
     public List<AssetData> DownloadedAssetData;
+    
+    public 
     
     public enum DownloadType
     {
@@ -159,7 +163,7 @@ public class FirebaseStorageController : MonoBehaviour
         }
     }
 
-    public void downloadContent(string itemName)
+    public void downloadContent(string itemName, Transform progressBar, Transform progressFill)
     {
         // set url to the url of the content relevant to the button clicked
         string url = "gs://emoji-junkie-dlc-store-fb6f2.appspot.com/Content/";
@@ -179,7 +183,7 @@ public class FirebaseStorageController : MonoBehaviour
                 break;
             
             case "Special effects pack":
-                itemUrl = "CFXR3 Hit Light B (Air).prefab";
+                itemUrl = "CFXR2 Shiny Item (Loop).prefab";
                 break;
             
             default:
@@ -192,15 +196,32 @@ public class FirebaseStorageController : MonoBehaviour
         //string localUrl = Application.streamingAssetsPath + "/Content/" + itemUrl;
 
         // Download to the local filesystem
-        storageRef.GetFileAsync(localUrl).ContinueWithOnMainThread(task => {
+        Task task = storageRef.GetFileAsync(localUrl,
+            new StorageProgress<DownloadState>(state => {
+                // called periodically during the download
+                /*Debug.Log(String.Format(
+                    "Progress: {0} of {1} bytes transferred.",
+                    state.BytesTransferred,
+                    state.TotalByteCount
+                ));*/
+                
+                //progress bar filling up
+                new WaitForEndOfFrame();
+                progressFill.GetComponent<RectTransform>().localScale = new Vector3((float)state.BytesTransferred/(float)state.TotalByteCount, progressFill.localScale.y, progressFill.localScale.z);
+
+            }), CancellationToken.None);
+
+        task.ContinueWithOnMainThread(resultTask => {
             if (!task.IsFaulted && !task.IsCanceled) {
                 Debug.Log("File downloaded." + Application.dataPath);
                 //Debug.Log("File downloaded." + Application.streamingAssetsPath);
                 
-                // update the sprite in store
-                // make progress bar
-                // when end do special effect
-                // etc.
+                // do special effect
+                
+                
+                // disable progress bar
+                progressBar.GetComponent<Image>().enabled = false;
+                progressFill.GetComponent<Image>().enabled = false;
             }
             else
             {
