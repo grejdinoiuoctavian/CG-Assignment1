@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Firebase.Extensions;
 using Firebase.Firestore;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -67,14 +68,16 @@ public class DataMining : MonoBehaviour
         });
     }
     
-    public void RecordItemBtnlClick()
+    public void RecordItemBtnlClick(GameObject buttonClicked)
     {
         Dictionary<string, object> city = new Dictionary<string, object>
         {
             { "User", _anonymisedUserId },
             { "Action", ActionType.ItemButtonClicked.ToString() },
-            { "DateTime", DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") }
+            { "DateTime", DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") },
+            { "ItemBought", buttonClicked.transform.parent.GetChild(3).GetComponent<TMP_Text>().text }
         };
+        
         _docRef.SetAsync(city).ContinueWithOnMainThread(task =>
         {
             Debug.Log($"Added {ActionType.ItemButtonClicked.ToString()} action to Firestore Emoji ItemBtn");

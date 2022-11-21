@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Xml.Linq;
@@ -14,8 +16,10 @@ using Firebase.Extensions;
 using JetBrains.Annotations;
 using TMPro;
 using Unity.VisualScripting;
-using UnityEditor.VersionControl;
+//using UnityEditor.VersionControl;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 using Task = System.Threading.Tasks.Task;
 
 public class FirebaseStorageController : MonoBehaviour
@@ -32,6 +36,13 @@ public class FirebaseStorageController : MonoBehaviour
     public enum DownloadType
     {
         Manifest, Thumbnail
+    }
+    
+    public enum GameItemType
+    {
+        Background,
+        Emoji,
+        Sfx
     }
     
     public static FirebaseStorageController Instance
@@ -82,7 +93,91 @@ public class FirebaseStorageController : MonoBehaviour
 
     public void prepGame()
     {
+        GameObject bg1 = GameObject.Find("BG1");
+        GameObject bg2 = GameObject.Find("BG2");
+        GameObject emoji = GameObject.Find("Emoji");
+        GameObject sfx = GameObject.Find("SpecialEffect");
         
+        foreach (AssetData asset in DownloadedAssetData)
+        {
+            if (asset.Owned)
+            {
+                switch (asset.Name)
+                {
+                    case "Background 1":
+                        StartCoroutine(LoadSpriteInGame(bg1, "Content/bg1.png", GameItemType.Background));
+                        break;
+            
+                    case "Background 2":
+                        StartCoroutine(LoadSpriteInGame(bg2, "Content/bg2.png", GameItemType.Background));
+                        break;
+            
+                    case "Emoji skin pack":
+                        StartCoroutine(LoadSpriteInGame(emoji, "Content/emoji_pack.png", GameItemType.Emoji));
+                        break;
+            
+                    case "Special effects pack":
+                        break;
+            
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    IEnumerator LoadSpriteInGame(GameObject spriteContainer, string fileName, GameItemType itemType)
+    {
+        spriteContainer.GetComponent<SpriteRenderer>().enabled = true;
+
+        string fileUrl = Path.Combine(Application.streamingAssetsPath, fileName);
+        byte[] imgData = File.ReadAllBytes(fileUrl);
+        Texture2D tex = new Texture2D(2, 2);
+        print("==== " + fileUrl);
+        
+        if (fileUrl.Contains("://") || fileUrl.Contains(":///"))
+        {
+            UnityWebRequest www = UnityWebRequest.Get(fileUrl);
+            yield return www.SendWebRequest();
+            imgData = www.downloadHandler.data;
+        }
+        else
+        {
+            imgData = File.ReadAllBytes(fileUrl);
+        }
+        tex.LoadImage(imgData);
+
+        switch (itemType)
+        {
+            case GameItemType.Background:
+                SetSprite(spriteContainer, tex);
+                break;
+            case GameItemType.Emoji:
+                StartCoroutine(SetEmoji(spriteContainer, tex));
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void SetSprite(GameObject spriteContainer, Texture2D tex)
+    {
+        Sprite sprite = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), Vector2.one * 0.5f, 100.0f);
+                        
+        spriteContainer.GetComponent<SpriteRenderer>().sprite = sprite;
+    }
+
+    IEnumerator SetEmoji(GameObject spriteContainer, Texture2D tex)
+    {
+        while (true)
+        {
+            var rect = new Rect(72 * Random.Range(0, 16), 72 * Random.Range(0, 5), tex.width / 16, tex.height / 5);
+            Sprite sprite = Sprite.Create(tex, rect, Vector2.one * 0.5f);
+
+            spriteContainer.GetComponent<SpriteRenderer>().sprite = sprite;
+
+            yield return new WaitForSeconds(1);
+        }
     }
     
     public void prepStore()
@@ -267,7 +362,7 @@ public class FirebaseStorageController : MonoBehaviour
         StorageReference storageRef =  _firebaseInstance.GetReferenceFromUrl(contentUrl);   
         
         // Create local filesystem URL
-        string localUrl = Application.dataPath + "/Content/" + contentUrl.Substring(54);
+        string localUrl = Application.streamingAssetsPath + "/Content/" + contentUrl.Substring(54);
         //string localUrl = Application.streamingAssetsPath + "/Content/" + itemUrl;
 
         // Download to the local filesystem
@@ -287,7 +382,7 @@ public class FirebaseStorageController : MonoBehaviour
 
         task.ContinueWithOnMainThread(resultTask => {
             if (!task.IsFaulted && !task.IsCanceled) {
-                Debug.Log("File downloaded." + Application.dataPath);
+                Debug.Log("File downloaded." + Application.streamingAssetsPath);
                 //Debug.Log("File downloaded." + Application.streamingAssetsPath);
                 
                 // find relevant asset and set to owned
@@ -301,6 +396,9 @@ public class FirebaseStorageController : MonoBehaviour
                         //change wallet balance
                         WalletManager.Instance.emojicoins -= asset.Price;
                     }
+                    
+                    //update wallet display
+                    WalletManager.Instance.updateWallet();
                     
                     checkIfItemsAreAffordable(asset);
                 }

@@ -326,15 +326,15 @@ MonoBehaviour:
       - m_Target: {fileID: 7265863943879971526, guid: 30bbe064d352fcc4498d68ea6cb35335, type: 3}
         m_TargetAssemblyTypeName: DataMining, Assembly-CSharp
         m_MethodName: RecordItemBtnlClick
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 3836865851756083394}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 0
 --- !u!114 &1732316117986176233
 MonoBehaviour:
   m_ObjectHideFlags: 0

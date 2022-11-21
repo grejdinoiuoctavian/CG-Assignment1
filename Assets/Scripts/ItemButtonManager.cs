@@ -46,7 +46,5 @@ public class ItemButtonManager : MonoBehaviour
             gameObject.GetComponent<Button>().interactable = false;
             transform.GetChild(0).GetComponent<TMP_Text>().text = "OWNED";
         }
-        
-        WalletManager.Instance.updateWallet();
     }
 }
