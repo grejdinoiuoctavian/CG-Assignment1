@@ -10,20 +10,34 @@ public class DataMining : MonoBehaviour
 {
     private FirebaseFirestore _db;
     private DocumentReference _docRef;
+    private string stringValue;
     
     public enum ActionType
     {
         StoreButtonClicked, GameButtonClicked
     }
 
-    private readonly String _anonymisedUserId = "on923oinsafni2";
+    private String _anonymisedUserId = "on923oinsafni3";
+    
 
     private void Awake()
     {
         _db = FirebaseFirestore.DefaultInstance;
         _docRef = _db.Collection("data-mining").Document();
+        SaveUserPlayerPref();
     }
 
+    private void Start()
+    {
+        _anonymisedUserId = PlayerPrefs.GetString("UserToken","on923oinsafni3");
+        Debug.Log(_anonymisedUserId);
+    }
+
+    public void SaveUserPlayerPref()
+    {
+        PlayerPrefs.SetString("UserToken", _anonymisedUserId);
+    }
+    
     public void RecordStoreBtnlClick()
     {
         Dictionary<string, object> city = new Dictionary<string, object>
