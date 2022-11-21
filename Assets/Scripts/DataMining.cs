@@ -62,6 +62,7 @@ public class DataMining : MonoBehaviour
             { "Action", ActionType.GameButtonClicked.ToString() },
             { "DateTime", DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") }
         };
+        
         _docRef.SetAsync(city).ContinueWithOnMainThread(task =>
         {
             Debug.Log($"Added {ActionType.GameButtonClicked.ToString()} action to Firestore Emoji GameBtn");
@@ -70,6 +71,9 @@ public class DataMining : MonoBehaviour
     
     public void RecordItemBtnlClick(GameObject buttonClicked)
     {
+        _db = FirebaseFirestore.DefaultInstance;
+        _docRef = _db.Collection("data-mining").Document();
+        
         Dictionary<string, object> city = new Dictionary<string, object>
         {
             { "User", _anonymisedUserId },
