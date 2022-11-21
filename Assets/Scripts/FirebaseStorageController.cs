@@ -62,7 +62,8 @@ public class FirebaseStorageController : MonoBehaviour
 
     private void Start()
     {
-        //prepStore();
+        //to debug
+        //PlayerPrefs.SetInt("PolicyInt", 0);
     }
 
     private void prepScene(Scene scene, LoadSceneMode mode)

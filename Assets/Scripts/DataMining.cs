@@ -14,10 +14,11 @@ public class DataMining : MonoBehaviour
     
     public enum ActionType
     {
-        StoreButtonClicked, GameButtonClicked
+        StoreButtonClicked, GameButtonClicked, ItemButtonClicked
     }
 
     private String _anonymisedUserId = "on923oinsafni3";
+    private int policyCode = 0;
     
 
     private void Awake()
@@ -37,7 +38,7 @@ public class DataMining : MonoBehaviour
     {
         PlayerPrefs.SetString("UserToken", _anonymisedUserId);
     }
-    
+
     public void RecordStoreBtnlClick()
     {
         Dictionary<string, object> city = new Dictionary<string, object>
@@ -63,6 +64,20 @@ public class DataMining : MonoBehaviour
         _docRef.SetAsync(city).ContinueWithOnMainThread(task =>
         {
             Debug.Log($"Added {ActionType.GameButtonClicked.ToString()} action to Firestore Emoji GameBtn");
+        });
+    }
+    
+    public void RecordItemBtnlClick()
+    {
+        Dictionary<string, object> city = new Dictionary<string, object>
+        {
+            { "User", _anonymisedUserId },
+            { "Action", ActionType.ItemButtonClicked.ToString() },
+            { "DateTime", DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") }
+        };
+        _docRef.SetAsync(city).ContinueWithOnMainThread(task =>
+        {
+            Debug.Log($"Added {ActionType.ItemButtonClicked.ToString()} action to Firestore Emoji ItemBtn");
         });
     }
 }

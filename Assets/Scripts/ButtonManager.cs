@@ -7,7 +7,10 @@ using UnityEngine.UI;
 public class ButtonManager : MonoBehaviour
 {
     [SerializeField]
-    public Button Store_btn, Game_btn, Back_ss_btn, Back_gs_btn, Exit_btn;
+    public Button Store_btn, Game_btn, Back_ss_btn, Back_gs_btn, Exit_btn, Accept_btn, Decline_btn;
+
+    public GameObject Privacy_scroll_area;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -57,9 +60,17 @@ public class ButtonManager : MonoBehaviour
         }
     }
     
-    private void StartStore()
+    public void StartStore()
     {
-        SceneManager.LoadScene("Store_Scene");
+        int policyCode = PlayerPrefs.GetInt("PolicyInt", 0);
+        if (policyCode == 1)
+        {
+            SceneManager.LoadScene("Store_Scene");
+        }
+        else
+        {
+            OpenPolicy();
+        }
         //FirebaseStorageController.Instance.prepStore();
     }
     
@@ -76,6 +87,26 @@ public class ButtonManager : MonoBehaviour
     private void BackGame()
     {
         SceneManager.LoadScene("Welcome_Scene");
+    }
+
+    public void OpenPolicy()
+    {
+        GameObject.Find("Policy_gameObject").transform.position = new Vector3(0,0,0);
+        //Accept_btn.GetComponent<Button>().enabled = true;
+        //Decline_btn.GetComponent<Button>().enabled = true;
+    }
+
+    public void AcceptPolicy()
+    {
+        PlayerPrefs.SetInt("PolicyInt", 1);
+        StartStore();
+    }
+
+    public void ClosePolicy()
+    {
+        GameObject.Find("Policy_gameObject").transform.position = new Vector3(0,1000,0);
+        //Accept_btn.GetComponent<Button>().enabled = false;
+        //Decline_btn.GetComponent<Button>().enabled = false;
     }
     
     private void ExitGame()
